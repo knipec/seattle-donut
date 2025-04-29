@@ -1,0 +1,14 @@
+{
+  "name": "69d211b4dc896505",
+  "main": "69d211b4dc896505@1861.js",
+  "version": "1861.0.0",
+  "homepage": "https://observablehq.com/d/69d211b4dc896505",
+  "author": {
+    "name": "cknipe",
+    "url": "https://observablehq.com/@cknipe-stuff"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "^5.9.9"
+  }
+}
