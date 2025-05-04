@@ -545,6 +545,16 @@ const human_marks = human_donut.selectAll('path')
     appendHtmlTextIncludingNewlines(panelDetails, d["details"]);
     
     sidePanel.style("display", "block");
+
+        // Link
+        const panelLink = sidePanel.select("#panel-link");
+        panelLink.selectAll("a").remove();
+        if (d["link"]) {      
+          panelLink.append("a")
+          .attr("href", d["link"])
+          .text("More info about this data")
+          .attr("target", "_blank");
+        }
   };
 
   const outlineMark = (id) => {
