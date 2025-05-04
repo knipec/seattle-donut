@@ -9,7 +9,7 @@ htl.html`<p>Humanity’s current challenge is to meet the needs of all (from foo
 
 function _3(htl){return(
 htl.html`<h2>To use your own data</h2>
-<span>Create your own Google sheet using the format of <a href="https://docs.google.com/spreadsheets/d/1CCFffe9HGeQidmh3Fuf-TZltFqDP8xq3RwHBPKZUGvA/edit?gid=27969826#gid=27969826">our sheet for Seattle</a>, and link yours below</span>`
+<span>Create your own Google sheet using the format of <a href="https://docs.google.com/spreadsheets/d/17u5GECoGqdyKBz5xciyF_T2emLzwvgw4gaGn4l7atjg/edit?gid=0#gid=0">our sheet for Seattle</a>, and link yours below</span>`
 )}
 
 function _sheetInput(Inputs){return(
