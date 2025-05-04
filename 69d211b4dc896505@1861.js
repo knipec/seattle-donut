@@ -466,22 +466,20 @@ const human_marks = human_donut.selectAll('path')
   titleText.append('h2')
     .attr("id", "panel-title")
 
-  const percent = panelContent.append("p")
-    .attr("id", "panel-percent")
-   .style("font-weight", "bold")
   
   const closeButtonArea = 
   topBar.append("div")
-  const closeButton = closeButtonArea.append("button")
+  closeButtonArea.append("button")
     .attr("id", "close-panel")
     .style("font-size", "14px")
     .style("cursor", "pointer")
     .style('margin-left', '10px')
     .text("X")
     .on("click", function() {
-      sidePanel.style("display", "none");});  // Hide the panel when clicked
-  const details = panelContent.append("p")
+      sidePanel.style("display", "none");});  // Hide the panel when close button clicked
+  panelContent.append("p")
     .attr("id", "panel-details")
+
 
     // ----------------------------- Outline marks on hover -----------------------------
   // - Outline marks
@@ -489,9 +487,9 @@ const human_marks = human_donut.selectAll('path')
   // FYI: append('title') is not compatible with getHoverText
   const getHoverText = (d) => {
     const heading = `---${d.data.category}---`
-    const percent = d.data.percentage ? `${d.data.percentage}%` : 'no data'
+    const hover_text = d.data.hover_text
     const details = `${d.data.details ? "Click for more details" : ""}`
-    return `${heading}\n${percent}\n\n${details}`;
+    return `${heading}\n${hover_text}\n\n${details}`;
   }
   
   const changeMarkOnMouseover = (event) => {
@@ -540,19 +538,6 @@ const human_marks = human_donut.selectAll('path')
     
     // Title
     sidePanel.select("#panel-title").text(d["category"] ?? "");
-
-    // Percentage
-    const getPercentText = (d) => {
-      const percent = d["percentage"];
-      if (!percent) 
-        return "";
-      if (d["inner_or_outer"].toLowerCase() === "inner") {
-        return `${percent}% (healthy is 100% or more)`
-      } else {
-        return `${percent}% (healthy is 100% or less)`
-      }
-    }
-    sidePanel.select("#panel-percent").text(getPercentText(d));
     
     // Details
     const panelDetails = sidePanel.select("#panel-details");
