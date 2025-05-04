@@ -479,17 +479,17 @@ const human_marks = human_donut.selectAll('path')
       sidePanel.style("display", "none");});  // Hide the panel when close button clicked
   panelContent.append("p")
     .attr("id", "panel-details")
-
+  panelContent.append("p")
+    .attr("id", "panel-link")
 
     // ----------------------------- Outline marks on hover -----------------------------
   // - Outline marks
   //   - TODO: Give id's to marks and labels so that we can outline marks even when hovering on the label
   // FYI: append('title') is not compatible with getHoverText
   const getHoverText = (d) => {
-    const heading = `---${d.data.category}---`
-    const hover_text = d.data.hover_text
-    const details = `${d.data.details ? "Click for more details" : ""}`
-    return `${heading}\n${hover_text}\n\n${details}`;
+    const hover_text = d.data.hover_text ?? ""
+    const detail_msg = `${d.data.details ? "Click for more details" : ""}`
+    return `${hover_text}\n\n${detail_msg}`;
   }
   
   const changeMarkOnMouseover = (event) => {
