@@ -34,8 +34,12 @@ function _6(d3,sheetInput,response)
   else { return div.node(); }
 }
 
+function _layoutInput(Inputs){return(
+  // TODO: We'd prefer to know if it's wide or tall in this scope
+  Inputs.radio(["Wide", "Tall", "Default"], {label: "Layout", value: "Default"})
+)}
 
-function _chartSlope_v5(d3,response)
+function _chartSlope_v5(d3,response,layoutInput)
 {
  // ------------------------------------ Constants ------------------------------------
   // *********** Sizing ***********
@@ -43,10 +47,18 @@ function _chartSlope_v5(d3,response)
   const width = 800;
   const height = 800;
   
-  // If this is false, we will put legend and details boxes to the right of the viz
+  // Will legend and details boxes go below viz, or to its right?
   const wideCanvasWidth = 1300;
-  let boxesBelowViz = document.documentElement.clientWidth < wideCanvasWidth;
-  console.log("Document width: ", document.documentElement.clientWidth)
+  let boxesBelowViz; 
+  if (layoutInput === "Wide") {
+    boxesBelowViz = false;
+  }
+  else if (layoutInput === "Tall") {
+    boxesBelowViz = true;
+  }
+  else {
+    boxesBelowViz = document.documentElement.clientWidth < wideCanvasWidth;
+  }
   // Width/height of the canvas, including the legend and details panel
   let canvasWidth, canvasHeight, maxVizWidth;
   if (boxesBelowViz) {
@@ -62,7 +74,7 @@ function _chartSlope_v5(d3,response)
 
 
   // *********** Donut sizes ***********
-  const planet_outer_radius = (Math.min(width, height) / 2) ; // Worst overshoot
+  const planet_outer_radius = (Math.min(width, height) / 2 - 1) ; // Worst overshoot
   const planet_inner_radius = planet_outer_radius * 0.65;     // Smallest overshoot
   const donut_outer_radius = planet_inner_radius;
   const donut_inner_radius = donut_outer_radius * 0.6;
@@ -89,42 +101,9 @@ function _chartSlope_v5(d3,response)
 
 
   // ------------------------ General setup ------------------------
-  // const responsivefy = (svg) => {
-  //   // get container + svg aspect ratio
-  //   var container = d3.select(svg.node().parentNode),
-  //       retrieved_width = parseInt(svg.style("width")),
-  //       retrieved_width = parseInt(svg.style("height")),
-  //       aspect = retrieved_width / retrieved_width;
-  
-  // get width of container and resize svg to fit it  
-  //   const resize = () => {
-  //       var targetWidth = parseInt(container.style("width"));
-  //       svg.attr("width", targetWidth);
-  //       svg.attr("height", Math.round(targetWidth / aspect));
-  //   };
-  //   // add viewBox and preserveAspectRatio properties,
-  //   // and call resize so that svg resizes on inital page load
-  //   svg.attr("viewBox", "0 0 " + retrieved_width + " " + retrieved_width)
-  //       .attr("perserveAspectRatio", "xMinYMid")
-  //       .call(resize);
-
-  //   // to register multiple listeners for same event type, 
-  //   // you need to add namespace, i.e., 'click.foo'
-  //   // necessary if you call invoke this function for multiple svgs
-  //   // api docs: https://github.com/mbostock/d3/wiki/Selections#on
-  //   d3.select(window).on("resize." + container.attr("id"), resize);
-  // }
-
-  // svg 
-  //  .attr('height', canvasHeight)
-  //  .attr('width', canvasWidth)
-  //  .call(responsivefy)
-
   const container = d3.create('div')
-     // .style('height', maxVizHeight)
-     .style('width', maxVizWidth)
+    .style('width', maxVizWidth)
     .style('color', 'blue')
-    // .attr('max-width', canvasWidth)
   const svg = container.append('svg')
   //   // Eventually would we want to do this just to the viz part, but also add the other stuff separately?
   // .attr('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`)
@@ -135,13 +114,32 @@ function _chartSlope_v5(d3,response)
   .style('font-size', 12)
 
   // Credit to https://stackoverflow.com/questions/9400615/whats-the-best-way-to-make-a-d3-js-visualisation-layout-responsive
-  const canvasAspect = canvasWidth / canvasHeight;
+  function getResizedWidthHeight(maxVizWidth, svgWidth, canvasWidth, canvasHeight) {
+    const canvasAspect = canvasWidth / canvasHeight;
+    const targetWidth = Math.min(maxVizWidth, svgWidth);
+    const targetHeight = targetWidth / canvasAspect;
+    console.log("resized width A=", targetWidth, "  |  height=", targetHeight);
+    console.log("maxVizWidth=" + maxVizWidth + " svgWidth="+ svgWidth + " canvasWidth=" + canvasWidth + " canvasHeight=" + canvasHeight);
+    console.log("window inner width=", window.innerWidth)
+    return {targetWidth, targetHeight};
+  }
+
+  const htmlBodyMargin = 8;
+  const svgWidth = document.documentElement.clientWidth - htmlBodyMargin*2;
+  const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svgWidth, canvasWidth, canvasHeight);
+      svg.attr("width", targetWidth);
+      svg.attr("height", targetHeight);
+      console.log("resized width B=", targetWidth, "  |  height=", targetHeight);
+
   d3.select(window)
-   .on("resize", () => {
-     let targetWidth = Math.min(maxVizWidth, svg.node().getBoundingClientRect().width);
-     svg.attr("width", targetWidth);
-     svg.attr("height", targetWidth / canvasAspect);
-   });
+    .on("resize",  () => {
+      const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svg.node().getBoundingClientRect().width, canvasWidth, canvasHeight);
+      svg.attr("width", targetWidth);
+      svg.attr("height", targetHeight);
+      console.log("resized width (resize)=", targetWidth, "  |  height=", targetHeight);
+      // TODO-cknipe: Uhh wait do we have to do somthing to actually make this work on resize?
+      }
+    );
   
 
   // ------------------------ Green inside-the-donut static stuff ------------------------
@@ -660,7 +658,9 @@ export default function define(runtime, observer) {
   main.variable(observer("sheetInput")).define("sheetInput", ["Generators", "viewof sheetInput"], (G, _) => G.input(_));
   main.variable(observer()).define(["htl"], _5);
   main.variable(observer()).define(["d3","sheetInput","response"], _6);
-  main.variable(observer("chartSlope_v5")).define("chartSlope_v5", ["d3","response"], _chartSlope_v5);
+  main.variable(observer("viewof layoutInput")).define("viewof layoutInput", ["Inputs"], _layoutInput);
+  main.variable(observer("layoutInput")).define("layoutInput", ["Generators", "viewof layoutInput"], (G, _) => G.input(_));
+  main.variable(observer("chartSlope_v5")).define("chartSlope_v5", ["d3","response","layoutInput"], _chartSlope_v5);
   main.variable(observer()).define(["md"], _8);
   main.variable(observer()).define(["md"], _9);
   main.variable(observer()).define(["md"], _10);
