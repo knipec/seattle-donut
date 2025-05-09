@@ -12,14 +12,13 @@
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 
+    <div class="container" id="page-container">
+    </div>
+
     <script type="module">
-
-    import define from "./index.js";
-    import {Runtime, Library, Inspector} from "./runtime.js";
-
-    const runtime = new Runtime();
-    const main = runtime.module(define, Inspector.into(document.body));
-
-
+        import define from "./index.js";
+        import {Runtime, Library, Inspector} from "./runtime.js";
+        const runtime = new Runtime();
+        const main = runtime.module(define, Inspector.into(document.getElementById("page-container")));
     </script>
 </body>
