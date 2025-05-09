@@ -1,17 +1,3 @@
-function _1(md){return(
-md`# Donut Economics Seattle City Portrait`
-)}
-
-function _2(htl){return(
-htl.html`<p>Humanity’s current challenge is to meet the needs of all (from food and housing to healthcare and political voice) within the means of our planet (stable climate, fertile soils, and a protective ozone layer). Kate Raworth introduced the ideas of <a href="https://doughnuteconomics.org/about-doughnut-economics">Donut Economics</a>, where the “donut” is a way to visualize how well we’re meeting these social and planetary boundaries, on both a local and global scale. <a href="https://doughnuteconomics.org/organisations-and-networks/seattle-donut-economics-coalition"></p>
-<p>Seattle Donut Economics Coalition</a> is pulling together data to understand our Seattle community’s position in these boundaries, serving as a compass for how we can improve (following the methodology of <a href="https://doughnuteconomics.org/tools/creating-city-portraits">Creating City Portraits</a> and <a href="https://doughnuteconomics.org/tools/doughnut-unrolled-data-portrait-of-place">Doughnut Unrolled: Data Portrait of Place</a>). We’ve started by focusing on Local-Social (inner circle) and Local-Ecological (outer circle) impacts, with later iterations to account for our Global-Social and Global-Ecological impacts too. We’re just getting started and this is just a first draft – we’d love to get your thoughts and ideas as we work to improve our understanding!</p>`
-)}
-
-function _3(htl){return(
-htl.html`<h2>To use your own data</h2>
-<span>Create your own Google sheet using the format of <a href="https://docs.google.com/spreadsheets/d/17u5GECoGqdyKBz5xciyF_T2emLzwvgw4gaGn4l7atjg/edit?gid=0#gid=0">our sheet for Seattle</a>, and link yours below</span>`
-)}
-
 function _sheetInput(Inputs){return(
 Inputs.text({label: "Link to your google sheet"})
 )}
@@ -651,9 +637,6 @@ require('lodash')
 
 export default function define(runtime, observer) {
   const main = runtime.module();
-  main.variable(observer()).define(["md"], _1);
-  main.variable(observer()).define(["htl"], _2);
-  main.variable(observer()).define(["htl"], _3);
   main.variable(observer("viewof sheetInput")).define("viewof sheetInput", ["Inputs"], _sheetInput);
   main.variable(observer("sheetInput")).define("sheetInput", ["Generators", "viewof sheetInput"], (G, _) => G.input(_));
   main.variable(observer()).define(["htl"], _5);
