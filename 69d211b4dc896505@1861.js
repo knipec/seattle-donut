@@ -360,7 +360,7 @@ const human_marks = human_donut.selectAll('path')
     humanLegend_yOffset = height + panelMargin;
   } else {
     humanLegend_xOffset = width + panelMargin;
-    humanLegend_yOffset = panelMargin;
+    humanLegend_yOffset = titleHeight;
   }
 
   const legend = svg 
