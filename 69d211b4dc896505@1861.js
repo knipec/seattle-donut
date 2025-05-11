@@ -189,16 +189,15 @@ function _chartSlope_v5(d3,response,layoutInput)
     .range([human_outer_radius - 1, human_inner_radius])
     .unknown(human_inner_radius)
     .clamp(true)
-  
 
-  // Determine if we show a green arc inside the green part of the donut, good for us yay
+  // If we were to draw the green arc inside the green part of the donut
   const planet_insideDonut_arc = d3.arc()
     .innerRadius(donut_center_radius + 1)
     .outerRadius(donut_outer_radius - stroke_width + 1) // TODO: sketchy pixel math?
     .padRadius(0.5 * planet_outer_radius)
     .padAngle(2/(0.65 * planet_outer_radius))
     .cornerRadius(0)
-
+  // If we were to draw the red arc outside the donut 
   const planet_outsideDonut_arc = d3.arc()
     .innerRadius(planet_inner_radius)
     .outerRadius(d => planet_outsideDonut_scale(d.data.percentage))
@@ -213,7 +212,7 @@ function _chartSlope_v5(d3,response,layoutInput)
     .padAngle(2/(0.65 * planet_outer_radius))
     .cornerRadius(0)
   const human_outsideDonut_arc = d3.arc()
-    .innerRadius(d => human_outsideDonut_scale(d.data.percentage === null? 0 : d.data.percentage))
+    .innerRadius(d => human_outsideDonut_scale(d.data.percentage))
     .outerRadius(human_outer_radius)
     .padRadius(0.5 * planet_outer_radius)
     .padAngle(2/(0.65 * planet_outer_radius))
