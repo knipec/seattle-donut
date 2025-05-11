@@ -1,3 +1,5 @@
+import {getLayoutApproach} from "./utils.js"
+
 function _sheetInput(Inputs){return(
 Inputs.text({label: "Link to your google sheet"})
 )}
@@ -33,33 +35,7 @@ function _chartSlope_v5(d3,response,layoutInput)
   const donutOnlyWidth = 800;
   const donutOnlyHeight = 800;
   
-  // Will legend and details boxes go below viz, or to its right?
-  function getLayoutApproach() { 
-    const smallestWideCanvasWidth = 1300;
-    let boxesBelowViz; 
-    if (layoutInput === "Wide") {
-      boxesBelowViz = false;
-    }
-    else if (layoutInput === "Tall") {
-      boxesBelowViz = true;
-    }
-    else {
-      boxesBelowViz = document.documentElement.clientWidth < smallestWideCanvasWidth;
-    }
-    // Width/height of the canvas, including the legend and details panel
-    let canvasWidth, canvasHeight;
-    if (boxesBelowViz) {
-      canvasWidth = 800;
-      canvasHeight = 1400; 
-    } else {
-      canvasWidth = smallestWideCanvasWidth;
-      canvasHeight = 820;
-    }
-
-    return {boxesBelowViz, canvasWidth, canvasHeight}
-  }
-  
-  let {boxesBelowViz, canvasWidth, canvasHeight} = getLayoutApproach();
+  let {boxesBelowViz, canvasWidth, canvasHeight} = getLayoutApproach(layoutInput, document.documentElement.clientWidth);
 
   // TODO: Could be nice to re-figure out boxesBelowViz (relevant for Default case) when 
 
