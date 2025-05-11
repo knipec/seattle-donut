@@ -47,16 +47,13 @@ function _chartSlope_v5(d3,response,layoutInput)
       boxesBelowViz = document.documentElement.clientWidth < smallestWideCanvasWidth;
     }
     // Width/height of the canvas, including the legend and details panel
-    let canvasWidth, canvasHeight, maxVizWidth;
+    let canvasWidth, canvasHeight;
     if (boxesBelowViz) {
       canvasWidth = 800;
-      canvasHeight = 1400;
-      // Even if your window is wide enough, don't get bigger than this
-      maxVizWidth = donutOnlyWidth;    
+      canvasHeight = 1400; 
     } else {
       canvasWidth = smallestWideCanvasWidth;
       canvasHeight = 820;
-      maxVizWidth = 10000;
     }
 
     return {boxesBelowViz, canvasWidth, canvasHeight}
@@ -64,15 +61,8 @@ function _chartSlope_v5(d3,response,layoutInput)
   
   let {boxesBelowViz, canvasWidth, canvasHeight} = getLayoutApproach();
 
-  
-  d3.select(window)
-    .on("resize",  () => {
-      const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svg.node().getBoundingClientRect().width, canvasWidth, canvasHeight);
-      svg.attr("width", targetWidth);
-      svg.attr("height", targetHeight);
-      console.log("resized width (resize)=", targetWidth, "  |  height=", targetHeight);
-      }
-    );
+  // TODO: Could be nice to re-figure out boxesBelowViz (relevant for Default case) when 
+
 
   // *********** Donut sizes ***********
   const planet_outer_radius = (Math.min(donutOnlyWidth, donutOnlyHeight) / 2 - 1) ; // Worst overshoot
@@ -103,7 +93,6 @@ function _chartSlope_v5(d3,response,layoutInput)
 
   // ------------------------ General setup ------------------------
   const container = d3.create('div')
-    .style('width', maxVizWidth)
     .style('color', 'blue')
   const svg = container.append('svg')
   //   // Eventually would we want to do this just to the viz part, but also add the other stuff separately?
@@ -157,14 +146,14 @@ function _chartSlope_v5(d3,response,layoutInput)
   const socialStroke = donut_donut.append("circle")
     .attr('id', 'social_foundation')
     .attr('r', socialRadius)
-    .attr('fill', 'transparent') //hotpink for testing
+    .attr('fill', 'transparent')
     .attr('stroke', dark_green)
     .attr('stroke-width', stroke_width);
   const socialTextRadius = socialRadius - 0.5 * labelHeight;
   donut_donut.append("path")
     .attr('id', 'social_foundation_curve')
     .attr('d', `M-${socialTextRadius},0 A${socialTextRadius},${socialTextRadius} 0 0,1 ${socialTextRadius},0`)
-    .attr('fill', 'transparent') //hotpink for testing
+    .attr('fill', 'transparent')
     .attr('opacity', 0.3)
   donut_donut.append("text") 
       .attr('font-family', 'sans-serif')
