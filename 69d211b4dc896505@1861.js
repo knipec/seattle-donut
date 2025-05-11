@@ -179,24 +179,16 @@ function _chartSlope_v5(d3,response,layoutInput)
  
   // Determine how far the red arcs go, representing ecological overshoot or social shortfall
   const planet_outsideDonut_scale = d3.scaleLinear()
-    .domain([100, 300]) 
+    .domain([0, 100]) 
     .range([planet_inner_radius, planet_outer_radius])
     .unknown(planet_outer_radius) // Null data is drawn at max -- also requires logic further down to use the outsideDonut scale 
-    .clamp(true); // Cap the max to 100
-
-
-  // TODO-cknipe: Write some tests for the scales, cuz uuhhhhh 
-  console.log("Planet INNER RADIUS: ", planet_inner_radius)
-  console.log("Planet OUTER RADIUS: ", planet_outer_radius)
-  console.log("SCALE 200: ", planet_outsideDonut_scale(200)) 
-  console.log("SCALE 100: ", planet_outsideDonut_scale(100)) 
-  console.log("SCALE 50: ", planet_outsideDonut_scale(50)) 
-  console.log("SCALE 0: ", planet_outsideDonut_scale(0)) 
+    .clamp(true); // Cap the min and max to the domain
   
   const human_outsideDonut_scale = d3.scaleLinear()
-    .domain([0, 99])
-    .range([human_inner_radius, human_outer_radius - 1]);
-    // Null data is drawn at 0 by default, no need to special-case that
+    .domain([0, 100])
+    .range([human_outer_radius - 1, human_inner_radius])
+    .unknown(human_inner_radius)
+    .clamp(true)
   
 
   // Determine if we show a green arc inside the green part of the donut, good for us yay
@@ -239,7 +231,6 @@ function _chartSlope_v5(d3,response,layoutInput)
     .sort(null)
     .value(1)
 
-  // TODO: Standardize on terminology. "Outer/Inner" or "Planetary/Human" or "Ecological/Social" or "Ceiling/Foundation"
   const planet_data = response.data.filter(d => d.inner_or_outer == "Outer");
   const human_data = response.data.filter(d => d.inner_or_outer == "Inner");
   const planet_arcs = planet_pie(planet_data);
@@ -250,9 +241,10 @@ function _chartSlope_v5(d3,response,layoutInput)
   const human_donut = svg.append('g')
     .attr('transform', `translate(${donutOnlyWidth/2},${donutOnlyHeight/2})`)
 
+  // This specifies what percentage is the threshhold for good or bad
+  // True = green = good ("within the donut") = exactly 0 
   const isGoodForOuter = (value) => {
-    // True = green = good ("within the donut") = 100 or less 
-    return value === null ? null : value <= 100;
+    return value === null ? null : value === 0;
   }
 
   const planet_marks = planet_donut.selectAll('path')
@@ -265,8 +257,7 @@ function _chartSlope_v5(d3,response,layoutInput)
   
 
 const isGoodForInner = (value) => {
-  // True = green = good ("within the donut") = 100 or more
-  return value === null ? null : value >= 100;
+  return isGoodForOuter(value);
 }
   
 const human_marks = human_donut.selectAll('path')
