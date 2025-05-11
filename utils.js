@@ -24,4 +24,12 @@ export function getLayoutApproach(layoutInput, documentWidth) {
     return {boxesBelowViz, canvasWidth, canvasHeight}
 }
 
+  // This specifies what percentage is the threshhold for good or bad
+  // True = green = good ("within the donut") = exactly 0 
+export function isGoodForOuter(percentage) {
+    return percentage === null ? null : percentage === 0;
+}
 
+export function isGoodForInner(percentage) {
+    return isGoodForOuter(percentage);
+}

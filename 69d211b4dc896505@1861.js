@@ -1,4 +1,4 @@
-import {getLayoutApproach} from "./utils.js"
+import {getLayoutApproach, isGoodForOuter, isGoodForInner} from "./utils.js"
 
 function _sheetInput(Inputs){return(
 Inputs.text({label: "Link to your google sheet"})
@@ -23,7 +23,6 @@ function _6(d3,sheetInput,response)
 }
 
 function _layoutInput(Inputs){return(
-  // TODO: We'd prefer to know if it's wide or tall in this scope
   Inputs.radio(["Wide", "Tall", "Default"], {label: "Layout", value: "Default"})
 )}
 
@@ -34,7 +33,6 @@ function _chartSlope_v5(d3,response,layoutInput)
   // Width/height of just the donut visualization (without the legend and details panel)
   const donutOnlyWidth = 800;
   const donutOnlyHeight = 800;
-  
   let {boxesBelowViz, canvasWidth, canvasHeight} = getLayoutApproach(layoutInput, document.documentElement.clientWidth);
 
   // TODO: Could be nice to re-figure out boxesBelowViz (relevant for Default case) when 
@@ -73,11 +71,11 @@ function _chartSlope_v5(d3,response,layoutInput)
   const svg = container.append('svg')
   //   // Eventually would we want to do this just to the viz part, but also add the other stuff separately?
   // .attr('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`)
-  .attr("width", "100%")
-  .attr("height", "100%")
-  .attr('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`)
-  .style('font-family', 'sans-serif')
-  .style('font-size', 12)
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`)
+    .style('font-family', 'sans-serif')
+    .style('font-size', 12)
 
   // ------------------------ Green inside-the-donut static stuff ------------------------
   const stroke_width = 14;
@@ -216,11 +214,7 @@ function _chartSlope_v5(d3,response,layoutInput)
   const human_donut = svg.append('g')
     .attr('transform', `translate(${donutOnlyWidth/2},${donutOnlyHeight/2})`)
 
-  // This specifies what percentage is the threshhold for good or bad
-  // True = green = good ("within the donut") = exactly 0 
-  const isGoodForOuter = (value) => {
-    return value === null ? null : value === 0;
-  }
+
 
   const planet_marks = planet_donut.selectAll('path')
     .data(planet_arcs)
@@ -229,11 +223,7 @@ function _chartSlope_v5(d3,response,layoutInput)
       .attr('d', d => {
         const isGood = isGoodForOuter(d.data.percentage);
         return isGood === null || isGood === false ? planet_outsideDonut_arc(d) :  planet_insideDonut_arc(d)});
-  
 
-const isGoodForInner = (value) => {
-  return isGoodForOuter(value);
-}
   
 const human_marks = human_donut.selectAll('path')
     .data(human_arcs)
