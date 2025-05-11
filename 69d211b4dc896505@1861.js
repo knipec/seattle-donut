@@ -167,12 +167,31 @@ function _chartSlope_v5(d3,response,layoutInput)
 
   
   // ----------------------- Outer & Inner Data Driven Stuff -----------------------
-  // How far do the red arcs go in or out
+  // Terminology note as of 2025-05-10: 
+  // - "Outside donut" means "in the red, bad"
+  //   "Inside donut" means "in the green, good"
+  // - Not to be confused with "inner" and "outer" radius, which create the blueprint
+  //   for where to put the data within their respective sections (like "planet_inner_radius",
+  //   "donut_outer_radius", etc -- see comments where they are defined)
+  // - Please feel free to suggest a better naming convention :)
+
+
+ 
+  // Determine how far the red arcs go, representing ecological overshoot or social shortfall
   const planet_outsideDonut_scale = d3.scaleLinear()
     .domain([100, 300]) 
     .range([planet_inner_radius, planet_outer_radius])
     .unknown(planet_outer_radius) // Null data is drawn at max -- also requires logic further down to use the outsideDonut scale 
-    .clamp(true); // Cap the max
+    .clamp(true); // Cap the max to 100
+
+
+  // TODO-cknipe: Write some tests for the scales, cuz uuhhhhh 
+  console.log("Planet INNER RADIUS: ", planet_inner_radius)
+  console.log("Planet OUTER RADIUS: ", planet_outer_radius)
+  console.log("SCALE 200: ", planet_outsideDonut_scale(200)) 
+  console.log("SCALE 100: ", planet_outsideDonut_scale(100)) 
+  console.log("SCALE 50: ", planet_outsideDonut_scale(50)) 
+  console.log("SCALE 0: ", planet_outsideDonut_scale(0)) 
   
   const human_outsideDonut_scale = d3.scaleLinear()
     .domain([0, 99])
@@ -180,12 +199,14 @@ function _chartSlope_v5(d3,response,layoutInput)
     // Null data is drawn at 0 by default, no need to special-case that
   
 
+  // Determine if we show a green arc inside the green part of the donut, good for us yay
   const planet_insideDonut_arc = d3.arc()
     .innerRadius(donut_center_radius + 1)
     .outerRadius(donut_outer_radius - stroke_width + 1) // TODO: sketchy pixel math?
     .padRadius(0.5 * planet_outer_radius)
     .padAngle(2/(0.65 * planet_outer_radius))
     .cornerRadius(0)
+
   const planet_outsideDonut_arc = d3.arc()
     .innerRadius(planet_inner_radius)
     .outerRadius(d => planet_outsideDonut_scale(d.data.percentage))
@@ -265,6 +286,7 @@ const human_marks = human_donut.selectAll('path')
       const textElement = d3.select(this);
 
       // Split the text into multiple lines
+      // FYI there's some issue here if the categories have newlines in the spreadsheet?
       const lines = d.data.category.split('\n');
 
       // Append each line as a <tspan>
@@ -424,7 +446,6 @@ const human_marks = human_donut.selectAll('path')
   const titleText = title.append("div")
   titleText.append('h2')
     .attr("id", "panel-title")
-
   
   const closeButtonArea = 
   topBar.append("div")
@@ -436,6 +457,12 @@ const human_marks = human_donut.selectAll('path')
     .text("X")
     .on("click", function() {
       sidePanel.style("display", "none");});  // Hide the panel when close button clicked
+
+
+  // Use only for development; don't show to user
+  // const percentage = panelContent.append('p')
+  //   .attr("id", "panel-percentage")
+
   panelContent.append("p")
     .attr("id", "panel-details")
   panelContent.append("p")
@@ -497,6 +524,10 @@ const human_marks = human_donut.selectAll('path')
     
     // Title
     sidePanel.select("#panel-title").text(d["category"] ?? "");
+
+    // Percent (only use for development; don't show to user)
+    // TODO: Would also be useful to show what that maps to on the d3 scale
+    // sidePanel.select("#panel-percentage").text(d["percentage"] ?? "N/A");
     
     // Details
     const panelDetails = sidePanel.select("#panel-details");
@@ -584,8 +615,14 @@ async function _response(getCsvUrl,sheetInput,d3)
   } 
   catch (error) {
     console.error("Error: Not a valid google doc with public viewing permissions");
+
+    // Actual spreadsheet for Seattle
     const defaultSheet = "https://docs.google.com/spreadsheets/d/17u5GECoGqdyKBz5xciyF_T2emLzwvgw4gaGn4l7atjg/edit?gid=0#gid=0";
-    const oldDefaultSheet = "https://docs.google.com/spreadsheets/d/1CCFffe9HGeQidmh3Fuf-TZltFqDP8xq3RwHBPKZUGvA/edit?gid=27969826#gid=27969826";
+    
+    // TODO-cknipe
+    // Test spreadsheet for development
+    // const defaultSheet = "https://docs.google.com/spreadsheets/d/1CCFffe9HGeQidmh3Fuf-TZltFqDP8xq3RwHBPKZUGvA/edit?gid=1288645352#gid=1288645352";
+
     const data = await d3.csv(getCsvUrl(defaultSheet), d3.autoType);
     return {data: data, 
             errorHtml: "<p><b>Error</b>: Are you sure this is a valid google doc with public viewing permissions?<br>Using the example sheet in this case.</p>"};
