@@ -30,37 +30,52 @@ function _chartSlope_v5(d3,response,layoutInput)
  // ------------------------------------ Constants ------------------------------------
   // *********** Sizing ***********
   // Width/height of just the donut visualization (without the legend and details panel)
-  const width = 800;
-  const height = 800;
+  const donutOnlyWidth = 800;
+  const donutOnlyHeight = 800;
   
   // Will legend and details boxes go below viz, or to its right?
-  const wideCanvasWidth = 1300;
-  let boxesBelowViz; 
-  if (layoutInput === "Wide") {
-    boxesBelowViz = false;
-  }
-  else if (layoutInput === "Tall") {
-    boxesBelowViz = true;
-  }
-  else {
-    boxesBelowViz = document.documentElement.clientWidth < wideCanvasWidth;
-  }
-  // Width/height of the canvas, including the legend and details panel
-  let canvasWidth, canvasHeight, maxVizWidth;
-  if (boxesBelowViz) {
-    canvasWidth = 800;
-    canvasHeight = 1400;
-    // Even if your window is wide enough, don't get bigger than this
-    maxVizWidth = 800;    
-  } else {
-    canvasWidth = wideCanvasWidth;
-    canvasHeight = 820;
-    maxVizWidth = 10000;
-  }
+  function getLayoutApproach() { 
+    const smallestWideCanvasWidth = 1300;
+    let boxesBelowViz; 
+    if (layoutInput === "Wide") {
+      boxesBelowViz = false;
+    }
+    else if (layoutInput === "Tall") {
+      boxesBelowViz = true;
+    }
+    else {
+      boxesBelowViz = document.documentElement.clientWidth < smallestWideCanvasWidth;
+    }
+    // Width/height of the canvas, including the legend and details panel
+    let canvasWidth, canvasHeight, maxVizWidth;
+    if (boxesBelowViz) {
+      canvasWidth = 800;
+      canvasHeight = 1400;
+      // Even if your window is wide enough, don't get bigger than this
+      maxVizWidth = donutOnlyWidth;    
+    } else {
+      canvasWidth = smallestWideCanvasWidth;
+      canvasHeight = 820;
+      maxVizWidth = 10000;
+    }
 
+    return {boxesBelowViz, canvasWidth, canvasHeight}
+  }
+  
+  let {boxesBelowViz, canvasWidth, canvasHeight} = getLayoutApproach();
+
+  
+  d3.select(window)
+    .on("resize",  () => {
+      const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svg.node().getBoundingClientRect().width, canvasWidth, canvasHeight);
+      svg.attr("width", targetWidth);
+      svg.attr("height", targetHeight);
+      console.log("resized width (resize)=", targetWidth, "  |  height=", targetHeight);
+      }
+    );
 
   // *********** Donut sizes ***********
-  const planet_outer_radius = (Math.min(width, height) / 2 - 1) ; // Worst overshoot
+  const planet_outer_radius = (Math.min(donutOnlyWidth, donutOnlyHeight) / 2 - 1) ; // Worst overshoot
   const planet_inner_radius = planet_outer_radius * 0.65;     // Smallest overshoot
   const donut_outer_radius = planet_inner_radius;
   const donut_inner_radius = donut_outer_radius * 0.6;
@@ -99,39 +114,10 @@ function _chartSlope_v5(d3,response,layoutInput)
   .style('font-family', 'sans-serif')
   .style('font-size', 12)
 
-  // Credit to https://stackoverflow.com/questions/9400615/whats-the-best-way-to-make-a-d3-js-visualisation-layout-responsive
-  function getResizedWidthHeight(maxVizWidth, svgWidth, canvasWidth, canvasHeight) {
-    const canvasAspect = canvasWidth / canvasHeight;
-    const targetWidth = Math.min(maxVizWidth, svgWidth);
-    const targetHeight = targetWidth / canvasAspect;
-    console.log("resized width A=", targetWidth, "  |  height=", targetHeight);
-    console.log("maxVizWidth=" + maxVizWidth + " svgWidth="+ svgWidth + " canvasWidth=" + canvasWidth + " canvasHeight=" + canvasHeight);
-    console.log("window inner width=", window.innerWidth)
-    return {targetWidth, targetHeight};
-  }
-
-  const htmlBodyMargin = 8;
-  const svgWidth = document.documentElement.clientWidth - htmlBodyMargin*2;
-  const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svgWidth, canvasWidth, canvasHeight);
-      svg.attr("width", targetWidth);
-      svg.attr("height", targetHeight);
-      console.log("resized width B=", targetWidth, "  |  height=", targetHeight);
-
-  d3.select(window)
-    .on("resize",  () => {
-      const {targetWidth, targetHeight} = getResizedWidthHeight(maxVizWidth, svg.node().getBoundingClientRect().width, canvasWidth, canvasHeight);
-      svg.attr("width", targetWidth);
-      svg.attr("height", targetHeight);
-      console.log("resized width (resize)=", targetWidth, "  |  height=", targetHeight);
-      // TODO-cknipe: Uhh wait do we have to do somthing to actually make this work on resize?
-      }
-    );
-  
-
   // ------------------------ Green inside-the-donut static stuff ------------------------
   const stroke_width = 14;
   const donut_donut = svg.append('g')
-    .attr('transform', `translate(${width/2},${height/2})`)
+    .attr('transform', `translate(${donutOnlyWidth/2},${donutOnlyHeight/2})`)
   
   // Center ring
   donut_donut.append("circle")
@@ -250,9 +236,9 @@ function _chartSlope_v5(d3,response,layoutInput)
   const human_arcs = human_pie(human_data);
   
   const planet_donut = svg.append('g')
-    .attr('transform', `translate(${width/2},${height/2})`)
+    .attr('transform', `translate(${donutOnlyWidth/2},${donutOnlyHeight/2})`)
   const human_donut = svg.append('g')
-    .attr('transform', `translate(${width/2},${height/2})`)
+    .attr('transform', `translate(${donutOnlyWidth/2},${donutOnlyHeight/2})`)
 
   const isGoodForOuter = (value) => {
     // True = green = good ("within the donut") = 100 or less 
@@ -357,9 +343,9 @@ const human_marks = human_donut.selectAll('path')
 
   if (boxesBelowViz) {
     humanLegend_xOffset = panelMargin;
-    humanLegend_yOffset = height + panelMargin;
+    humanLegend_yOffset = donutOnlyHeight + panelMargin;
   } else {
-    humanLegend_xOffset = width + panelMargin;
+    humanLegend_xOffset = donutOnlyWidth + panelMargin;
     humanLegend_yOffset = titleHeight;
   }
 
@@ -406,12 +392,12 @@ const human_marks = human_donut.selectAll('path')
   let sidePanelxOffset, sidePanelyOffset, sidePanelWidth, sidePanelHeight
   if (boxesBelowViz) {
     sidePanelxOffset = humanLegend_xOffset + humanLegend_width + panelMargin;
-    sidePanelyOffset = height + panelMargin;
-    sidePanelWidth = width - humanLegend_width - panelMargin;
-    sidePanelHeight = canvasHeight - height - panelMargin*2;    
+    sidePanelyOffset = humanLegend_yOffset;
+    sidePanelWidth = donutOnlyWidth - humanLegend_width - panelMargin;
+    sidePanelHeight = canvasHeight - donutOnlyHeight - panelMargin*2;    
   } else {
     sidePanelxOffset = humanLegend_xOffset + humanLegend_width + panelMargin;
-    sidePanelyOffset = panelMargin;
+    sidePanelyOffset = humanLegend_yOffset;
     sidePanelWidth = canvasWidth - sidePanelxOffset - panelMargin;
     sidePanelHeight = canvasHeight - panelMargin*2;  
   }
