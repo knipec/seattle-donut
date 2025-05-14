@@ -434,8 +434,9 @@ const human_marks = human_donut.selectAll('path')
   //   - TODO: Give id's to marks and labels so that we can outline marks even when hovering on the label
   // FYI: append('title') is not compatible with getHoverText
   const getHoverText = (d) => {
+    const category = d.data.category
     const hover_text = d.data.hover_text ?? ""
-    const detail_msg = `${d.data.details ? "Click for more details" : ""}`
+    const detail_msg = `${category}\n\n${d.data.details ? "Click for more details" : ""}`
     return `${hover_text}\n\n${detail_msg}`;
   }
   
