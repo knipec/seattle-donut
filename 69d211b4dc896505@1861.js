@@ -1,5 +1,10 @@
 import {getLayoutApproach, isGoodForOuter, isGoodForInner} from "./utils.js"
 
+function _3(htl){return(
+  htl.html`<h2>To use your own data</h2>
+  <span>Create your own Google sheet using the format of <a href="https://docs.google.com/spreadsheets/d/17u5GECoGqdyKBz5xciyF_T2emLzwvgw4gaGn4l7atjg/edit?gid=0#gid=0">our sheet for Seattle</a>, and link yours below</span>`
+  )}
+
 function _sheetInput(Inputs){return(
 Inputs.text({label: "Link to your google sheet"})
 )}
@@ -605,19 +610,30 @@ require('lodash')
 
 export default function define(runtime, observer) {
   const main = runtime.module();
-  main.variable(observer("viewof sheetInput")).define("viewof sheetInput", ["Inputs"], _sheetInput);
-  main.variable().define("sheetInput", ["Generators", "viewof sheetInput"], (G, _) => G.input(_));
+  
   main.variable(observer()).define(["htl"], _5);
   main.variable(observer()).define(["d3","sheetInput","response"], _6);
   main.variable(observer("viewof layoutInput")).define("viewof layoutInput", ["Inputs"], _layoutInput);
   main.variable().define("layoutInput", ["Generators", "viewof layoutInput"], (G, _) => G.input(_));
   main.variable(observer("chartSlope_v5")).define("chartSlope_v5", ["d3","response","layoutInput"], _chartSlope_v5);
+  
+  // Your own data
+  main.variable(observer()).define(["md"], _8);
+  main.variable(observer()).define(["htl"], _3);
+  main.variable(observer("viewof sheetInput")).define("viewof sheetInput", ["Inputs"], _sheetInput);
+  main.variable().define("sheetInput", ["Generators", "viewof sheetInput"], (G, _) => G.input(_));
+ 
+  // References
   main.variable(observer()).define(["md"], _8);
   main.variable(observer()).define(["md"], _9);
   main.variable(observer()).define(["md"], _10);
+
   main.variable().define("response", ["getCsvUrl","sheetInput","d3"], _response);
   main.variable().define("getCsvUrl", ["URLSearchParams"], _getCsvUrl);
   main.variable().define("d3", ["require"], _d3);
   main.variable().define("_", ["require"], __);
+
+
+
   return main;
 }
