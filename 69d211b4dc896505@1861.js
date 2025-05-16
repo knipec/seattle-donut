@@ -27,8 +27,12 @@ function _6(d3,sheetInput,response)
   else { return div.node(); }
 }
 
+function _layoutLabel(htl){return (
+  htl.html`<b>Layout</b>`
+)}
+
 function _layoutInput(Inputs){return(
-  Inputs.radio(["Wide", "Tall", "Default"], {label: "Layout", value: "Default"})
+  Inputs.radio(["Wide", "Tall", "Default"], {value: "Default"})
 )}
 
 function _chartSlope_v5(d3,response,layoutInput)
@@ -614,10 +618,12 @@ export default function define(runtime, observer) {
   
   main.variable(observer()).define(["htl"], _5);
   main.variable(observer()).define(["d3","sheetInput","response"], _6);
-  main.variable(observer("viewof layoutInput")).define("viewof layoutInput", ["Inputs"], _layoutInput);
-  main.variable().define("layoutInput", ["Generators", "viewof layoutInput"], (G, _) => G.input(_));
   main.variable(observer("chartSlope_v5")).define("chartSlope_v5", ["d3","response","layoutInput"], _chartSlope_v5);
   
+  main.variable(observer()).define(["htl"], _layoutLabel);
+  main.variable(observer("viewof layoutInput")).define("viewof layoutInput", ["Inputs"], _layoutInput);
+  main.variable().define("layoutInput", ["Generators", "viewof layoutInput"], (G, _) => G.input(_));
+
   // Your own data
   main.variable(observer()).define(["md"], _8);
   main.variable(observer()).define(["htl"], _3);
