@@ -16,6 +16,7 @@
     font-style: italic;
 }
 
-.center {
+.title {
     text-align: center;
+    display: flex;
 }
